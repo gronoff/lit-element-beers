@@ -1,0 +1,13 @@
+{
+    "name": "lit-element-beers",
+    "version": "1.0.0",
+    "description": "LitElement Beers - A LitElement tutorial",
+    "main": "index.js",
+    "devDependencies": {
+        "@pika/web": "^0.6.1"
+    },
+    "dependencies": {
+        "@granite-elements/granite-lit-bootstrap": "^4.3.1-3",
+        "lit-element": "^2.2.1"
+    }
+}
