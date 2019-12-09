@@ -30,11 +30,17 @@ const beers = [
     }
 ];
 
+const criteria = [
+    { name: "name", label: "Alphabetical" },
+    { name: "alcohol", label: "Alcohol content" }
+];
+
 
 class BeerList extends LitElement {
     constructor() {
         super();
         this.beers = beers;
+        this.criterium = criteria[0].name;
     }
 
     static get properties() {
@@ -43,6 +49,9 @@ class BeerList extends LitElement {
                 type: Array,
             },
             filterText: {
+                type: String,
+            },
+            criterium: {
                 type: String,
             },
         };
@@ -69,6 +78,18 @@ class BeerList extends LitElement {
                       id="search"  
                       placeholder="Enter search"
                       @input="${this._inputChange}">
+
+                <label 
+                      for="sort">
+                    Sort by
+                </label>
+                  <select 
+                      id="sort" 
+                      class="form-control"
+                      @change='${this._sortingChanged}'>
+                    ${ criteria.map((item) => html`<option value="${item.name}"> ${item.label}</option>`)}
+                  </select>
+
                       <div>Current search: ${this.filterText}</div>
                 </div>
               </div>
@@ -107,9 +128,16 @@ class BeerList extends LitElement {
 
     }
     _beerSorter(a, b) {
-        if (a.alcohol === b.alcohol) return 0;
-        return b.alcohol - a.alcohol;
+        if (a[this.criterium] === b[this.criterium]) return 0;
+        if (a[this.criterium] < b[this.criterium]) return -1;
+        if (a[this.criterium] > b[this.criterium]) return 1;
     }
+
+    _sortingChanged() {
+        this.criterium = this.shadowRoot.querySelector('#sort').selectedOptions[0].value;
+    }
+
+
 }
 
 customElements.define('beer-list', BeerList);
