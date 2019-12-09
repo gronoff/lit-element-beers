@@ -39,8 +39,10 @@ const criteria = [
 class BeerList extends LitElement {
     constructor() {
         super();
-        this.beers = beers;
+        this.beers = [];
         this.criterium = criteria[0].name;
+
+        this._getData();
     }
 
     static get properties() {
@@ -53,6 +55,9 @@ class BeerList extends LitElement {
             },
             criterium: {
                 type: String,
+            },
+            descendingSort: {
+                type: Boolean,
             },
         };
     }
@@ -90,7 +95,14 @@ class BeerList extends LitElement {
                     ${ criteria.map((item) => html`<option value="${item.name}"> ${item.label}</option>`)}
                   </select>
 
-                      <div>Current search: ${this.filterText}</div>
+
+                  <label for="descending">Descending sort</label>
+                  <input 
+                      id="descending" 
+                      type="checkbox" 
+                      @change="${this._descendingChange}">
+
+                <div>Current search: ${this.filterText}</div>
                 </div>
               </div>
               <div class="col-md-9">
@@ -104,9 +116,13 @@ class BeerList extends LitElement {
                 .sort((a, b) => this._beerSorter(a, b))
                 .map((beer) => {
                     return html`
-                        <beer-list-item name="${beer.name}" description="${beer.description}">
-                        </beer-list-item>
-                      `;
+                        <beer-list-item <beer-list-item 
+                        id="${beer.id}"
+                        name="${beer.name}" 
+                        description="${beer.description}"
+                        img="${beer.img}"
+                        alcohol="${beer.alcohol}">
+                        `;
                 })
             }
                 </div>
@@ -128,9 +144,11 @@ class BeerList extends LitElement {
 
     }
     _beerSorter(a, b) {
+        var invert = 1;
+        if (this.descendingSort) invert = -1;
         if (a[this.criterium] === b[this.criterium]) return 0;
-        if (a[this.criterium] < b[this.criterium]) return -1;
-        if (a[this.criterium] > b[this.criterium]) return 1;
+        if (a[this.criterium] < b[this.criterium]) return -1*invert;
+        if (a[this.criterium] > b[this.criterium]) return 1*invert;
     }
 
     _sortingChanged() {
@@ -138,6 +156,20 @@ class BeerList extends LitElement {
     }
 
 
+    _descendingChange() {
+        this.descendingSort = this.shadowRoot.querySelector('#descending').checked;
+      }
+
+
+    async _getData() {
+        try {
+            const response = await fetch('../data/beers/beers.json');
+            this.beers = await response.json();
+        }
+        catch (err) {
+            console.log('fetch failed', err);
+        }
+    }
 }
 
 customElements.define('beer-list', BeerList);
